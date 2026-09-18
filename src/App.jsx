@@ -12,14 +12,17 @@ import { TransformerGauge } from './components/TransformerGauge';
 import { TelemetryChart } from './components/TelemetryChart';
 import { ChargingBayGrid } from './components/ChargingBayGrid';
 import { ScenarioControls } from './components/ScenarioControls';
-import { EventLogDrawer } from './components/EventLogDrawer';
+import { AiInsightsSection } from './components/AiInsightsSection';
 import { ImpactSection } from './components/ImpactSection';
 import { AddVehicleModal } from './components/AddVehicleModal';
+import { ChargePactModal } from './components/ChargePactModal';
+import { SmartMetricsDashboard } from './components/SmartMetricsDashboard';
 
 const SECTION_IDS = [
   'overview',
   'grid-flow',
   'live-load',
+  'smart-metrics',
   'ev-bays',
   'ai-insights',
   'scenarios',
@@ -54,7 +57,11 @@ export function App() {
     updateVehiclePriority,
     toggleVehiclePause,
     addVehicle,
-    removeVehicle
+    removeVehicle,
+    // Pact actions
+    activePactProposal,
+    acceptChargePact,
+    declineChargePact
   } = useGridSimulation();
 
   // Synchronize active section based on scroll position accounting for sticky header
@@ -206,6 +213,14 @@ export function App() {
             </ScrollReveal>
           </section>
 
+          {/* SECTION 03.5 — SMART METRICS & FAIRNESS */}
+          <ScrollReveal>
+            <SmartMetricsDashboard
+              gridMetrics={gridMetrics}
+              vehicles={vehicles}
+            />
+          </ScrollReveal>
+
           {/* SECTION 04 — EV BAYS */}
           <section id="ev-bays" className="page-section">
             <ScrollReveal>
@@ -233,15 +248,21 @@ export function App() {
           <section id="ai-insights" className="page-section">
             <ScrollReveal>
               <div className="section-heading-group">
-                <span className="section-eyebrow">05 — AI Insights</span>
-                <h2 className="section-main-title">Algorithmic Event Logs & Automated Actions</h2>
+                <span className="section-eyebrow">05 — AI INSIGHTS</span>
+                <h2 className="section-main-title">Intelligence behind every charge.</h2>
                 <p className="section-subtitle">
-                  High-frequency event stream detailing real-time load shedding decisions, solar boost routings, threshold warnings, and charge completions.
+                  Voltara continuously interprets grid demand, vehicle priorities and renewable availability to make charging decisions in real time.
                 </p>
               </div>
             </ScrollReveal>
             <ScrollReveal>
-              <EventLogDrawer eventLogs={eventLogs} />
+              <AiInsightsSection
+                gridMetrics={gridMetrics}
+                vehicles={vehicles}
+                eventLogs={eventLogs}
+                gridConfig={gridConfig}
+                stats={stats}
+              />
             </ScrollReveal>
           </section>
 
@@ -304,7 +325,14 @@ export function App() {
         onAddVehicle={addVehicle}
       />
 
-      {/* 5. Voltara Clean Footer */}
+      {/* 5. Charge Pact Proposal Modal */}
+      <ChargePactModal
+        activePactProposal={activePactProposal}
+        onAccept={acceptChargePact}
+        onDecline={declineChargePact}
+      />
+
+      {/* 6. Voltara Clean Footer */}
       <footer className="voltara-footer">
         <div>
           <strong style={{ color: 'var(--dark)' }}>Voltara</strong> • Smart EV Charging & Localized Microgrid Coordination System

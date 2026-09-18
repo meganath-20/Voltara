@@ -165,7 +165,9 @@ export function ChargingBayCard({
     priorityMode = 'AUTO',
     status,
     urgencyLevel = 'MODERATE',
-    energyDeliveredKWh = 0
+    energyDeliveredKWh = 0,
+    fairnessScore = 0,
+    efficiencyPercent = 100
   } = vehicle;
 
   // Format departure minutes: e.g. 75 -> "1h 15m"
@@ -206,7 +208,14 @@ export function ChargingBayCard({
             <div className="ev-vehicle-model-name" title={model}>
               {model}
             </div>
-            <div className="ev-driver-name">{owner}</div>
+            <div className="ev-driver-name">
+              {owner}
+              {fairnessScore > 0 && (
+                <span className="ev-fairness-badge" title="Charge Pacts Accepted (Fairness Memory)">
+                  +{fairnessScore} 🤝
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -299,7 +308,7 @@ export function ChargingBayCard({
 
       {/* 4. Operational Telemetry Grid (Charge Rate, Departure, Session Energy) */}
       <div className="ev-telemetry-grid">
-        {/* Metric 1: Real-time Power Output */}
+        {/* Metric 1: Real-time Power Output & WattWise Efficiency */}
         <div className="ev-metric-cell">
           <span className="ev-metric-label">Charge Rate</span>
           <div className="ev-metric-val-row">
@@ -308,8 +317,8 @@ export function ChargingBayCard({
             </span>
             <span className="ev-metric-unit">kW</span>
           </div>
-          <span className="ev-metric-hint font-mono">
-            {allocatedAmps} A @ 230V
+          <span className="ev-metric-hint font-mono" style={{ color: (isCharging && efficiencyPercent < 90) ? 'var(--warning)' : 'inherit' }}>
+            {isCharging ? `${efficiencyPercent}% Efficient` : `${allocatedAmps} A @ 230V`}
           </span>
         </div>
 

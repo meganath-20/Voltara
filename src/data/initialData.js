@@ -142,44 +142,6 @@ export const INITIAL_VEHICLES = [
     status: 'CHARGING',
     energyDeliveredKWh: 8.6,
     color: '#f43f5e'
-  },
-  {
-    id: 'ev-5',
-    bay: 5,
-    owner: 'Liam Chen',
-    model: 'Hyundai Ioniq 5',
-    batteryCapacity: 77.4,
-    currentBatteryKWh: 54.2, // ~70%
-    currentSoC: 70,
-    targetSoC: 80,
-    arrivalMinutesAgo: 110,
-    departureMinutesLeft: 240, // 4h
-    maxPower: 11,
-    currentAllocatedPower: 3.8,
-    allocatedAmps: 16.5,
-    priorityMode: 'ECO_SOLAR', // Only charge on excess solar
-    status: 'CHARGING',
-    energyDeliveredKWh: 14.1,
-    color: '#a855f7'
-  },
-  {
-    id: 'ev-6',
-    bay: 6,
-    owner: 'Claire Dubois',
-    model: 'BMW i4 eDrive40',
-    batteryCapacity: 83.9,
-    currentBatteryKWh: 75.5, // ~90%
-    currentSoC: 90,
-    targetSoC: 90,
-    arrivalMinutesAgo: 150,
-    departureMinutesLeft: 180,
-    maxPower: 11,
-    currentAllocatedPower: 0,
-    allocatedAmps: 0,
-    priorityMode: 'AUTO',
-    status: 'COMPLETED',
-    energyDeliveredKWh: 22.8,
-    color: '#06b6d4'
   }
 ];
 

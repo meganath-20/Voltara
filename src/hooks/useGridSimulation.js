@@ -2,6 +2,46 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { INITIAL_VEHICLES, DEFAULT_GRID_CONFIG } from '../data/initialData';
 import { solveOptimalPowerDistribution } from '../algorithms/smartChargingEngine';
 
+export const getFairnessHistory = () => {
+  try {
+    return JSON.parse(localStorage.getItem('voltara_fairness_v2') || '{}');
+  } catch(e) { return {}; }
+};
+
+export const getDriverFairness = (ownerId) => {
+  const history = getFairnessHistory();
+  return history[ownerId] || {
+    compromiseCount: 0,
+    totalWaitingMinutes: 0,
+    totalSeverity: 'Low',
+    lastCompromise: null
+  };
+};
+
+export const recordFairnessCompromise = (ownerId, delayMinutes) => {
+  const history = getFairnessHistory();
+  const current = getDriverFairness(ownerId);
+  const newCount = current.compromiseCount + 1;
+  const newWait = current.totalWaitingMinutes + delayMinutes;
+  
+  let severity = 'Low';
+  if (newCount >= 3 || newWait >= 60) severity = 'High';
+  else if (newCount >= 1 || newWait >= 20) severity = 'Medium';
+  
+  history[ownerId] = {
+    compromiseCount: newCount,
+    totalWaitingMinutes: newWait,
+    totalSeverity: severity,
+    lastCompromise: new Date().toISOString()
+  };
+  localStorage.setItem('voltara_fairness_v2', JSON.stringify(history));
+};
+
+export const resetFairnessHistory = () => {
+  localStorage.removeItem('voltara_fairness_v2');
+  // force a small delay or reload normally, handled by caller
+};
+
 const WEATHER_MULTIPLIERS = {
   SUNNY: 1.0,
   PARTLY_CLOUDY: 0.62,
@@ -16,6 +56,10 @@ export function useGridSimulation() {
   const [manualSolarKW, setManualSolarKW] = useState(null);
   const [manualGridLimitKW, setManualGridLimitKW] = useState(null);
   
+  // Charge Pact State
+  const [activePactProposal, setActivePactProposal] = useState(null);
+  const pactCooldownRef = useRef(0);
+
   // Historical telemetry stream for live canvas charting (last 40 points)
   const [telemetryHistory, setTelemetryHistory] = useState([]);
   const [eventLogs, setEventLogs] = useState([
@@ -78,8 +122,14 @@ export function useGridSimulation() {
       : gridConfig.baseBuildingLoadKW + (Math.sin(gridConfig.timeOfDayHours * 1.5) * 4) + ((Math.random() - 0.5) * 1.2)
   );
 
+  // Inject fairness scores into vehicles before solving
+  const vehiclesWithFairness = vehicles.map(v => ({
+    ...v,
+    fairnessHistory: getDriverFairness(v.owner)
+  }));
+
   // Run the smart optimization algorithm
-  const solvedState = solveOptimalPowerDistribution(vehicles, {
+  const solvedState = solveOptimalPowerDistribution(vehiclesWithFairness, {
     transformerCapacityKW: currentTransformerLimit,
     baseBuildingLoadKW: Math.max(10, currentBuildingKW),
     solarGenerationKW: Math.max(0, currentSolarKW)
@@ -105,7 +155,11 @@ export function useGridSimulation() {
       const speed = gridConfig.simulationSpeed; // 1x, 5x, 10x
       const deltaSeconds = 1 * speed;
 
-      // 1. Advance diurnal clock
+      // 1. Advance diurnal clock and cooldowns
+      if (pactCooldownRef.current > 0) {
+        pactCooldownRef.current -= deltaSeconds;
+      }
+
       setGridConfig(prev => {
         let newHour = prev.timeOfDayHours + (deltaSeconds / 3600) * 12; // speed up time of day slightly for vivid demo
         if (newHour >= 24) newHour = 6.0; // wrap to morning
@@ -128,7 +182,8 @@ export function useGridSimulation() {
           }
 
           const powerKW = ev.currentAllocatedPower || 0;
-          const energyAddedKWh = (powerKW * (deltaSeconds / 3600)) * 0.94; // 94% charging efficiency
+          const usefulKW = ev.usefulBatteryEnergyKW || (powerKW * 0.94);
+          const energyAddedKWh = (usefulKW * (deltaSeconds / 3600));
           const newBatteryKWh = Math.min(ev.batteryCapacity, (ev.currentBatteryKWh || 0) + energyAddedKWh);
           const newSoC = Math.min(100, (newBatteryKWh / ev.batteryCapacity) * 100);
           const newDeparture = Math.max(0, ev.departureMinutesLeft - (deltaSeconds / 60));
@@ -187,12 +242,58 @@ export function useGridSimulation() {
         return next.length > 40 ? next.slice(next.length - 40) : next;
       });
 
+      // 5. Shortage Detection for Charge Pact
+      const eligibleEVs = solvedState.vehicles.filter(ev => ev.status !== 'COMPLETED' && ev.status !== 'PAUSED');
+      const requestedPower = eligibleEVs.reduce((sum, ev) => sum + (ev.maxPower || 0), 0);
+      const shortage = requestedPower - metrics.availableEVHeadroom;
+
+      // If requested charging power > available grid capacity
+      if (shortage > 0.5 && !activePactProposal && pactCooldownRef.current <= 0) {
+        if (eligibleEVs.length > 0) {
+          // Exclude anyone who already rejected a pact recently (for simplicity, just sort by lowest burden)
+          const candidates = [...eligibleEVs].sort((a, b) => {
+            const hA = a.fairnessHistory;
+            const hB = b.fairnessHistory;
+            const penA = a.temporaryRejectPenalty || 0;
+            const penB = b.temporaryRejectPenalty || 0;
+            if ((hA.compromiseCount + penA) !== (hB.compromiseCount + penB)) {
+              return (hA.compromiseCount + penA) - (hB.compromiseCount + penB);
+            }
+            return hA.totalWaitingMinutes - hB.totalWaitingMinutes;
+          });
+          
+          const candidate = candidates[0];
+          
+          setActivePactProposal({
+            evId: candidate.id,
+            owner: candidate.owner,
+            model: candidate.model,
+            currentSoC: candidate.currentSoC,
+            targetSoC: candidate.targetSoC,
+            shortageKW: Number(shortage.toFixed(1)),
+            suggestedDepartureAddMins: 20,
+            previousBurden: candidate.fairnessHistory
+          });
+          logEvent('WARN', `Grid shortage of ${shortage.toFixed(1)} kW. Proposing Charge Pact to ${candidate.owner}.`);
+          pactCooldownRef.current = 60 * 3; // 3 minutes simulated cooldown
+        }
+      }
+
     }, 1000);
 
     return () => clearInterval(interval);
   }, [gridConfig.isPaused, gridConfig.simulationSpeed, solvedState.gridMetrics, logEvent]);
 
   // SCENARIO TRIGGERS
+  const triggerGridShortageDemo = () => {
+    setGridConfig(prev => ({ ...prev, curtailmentActive: true }));
+    // 30kW available, while 4 EVs usually ask for ~36kW combined if none are completed
+    setManualGridLimitKW(72); // 72 cap - 42 base = 30kW headroom
+    setManualBuildingKW(42);
+    setManualSolarKW(0);
+    logEvent('SHED', '⚡ DEMO SCENARIO: Grid Shortage. 30 kW headroom vs 36 kW demand. Shortage = 6 kW.');
+  };
+
   const triggerBuildingSurge = () => {
     setGridConfig(prev => ({ ...prev, buildingSurgeActive: true }));
     setManualBuildingKW(88.5);
@@ -297,6 +398,42 @@ export function useGridSimulation() {
     logEvent('INFO', `Vehicle disconnected from bay: ${target?.model || 'EV'}.`);
   };
 
+  // CHARGE PACT ACTIONS
+  const acceptChargePact = (evId, addedMinutes) => {
+    setVehicles(prev => prev.map(ev => {
+      if (ev.id === evId) {
+        recordFairnessCompromise(ev.owner, addedMinutes); // Reward them in fairness memory
+        return {
+          ...ev,
+          departureMinutesLeft: ev.departureMinutesLeft + addedMinutes
+        };
+      }
+      return ev;
+    }));
+    
+    logEvent('BOOST', `🤝 Charge Pact Accepted! ${activePactProposal.owner} delayed departure by ${addedMinutes}m.`);
+    setActivePactProposal(null);
+    pactCooldownRef.current = 60 * 5; // Extra cooldown after acceptance
+  };
+
+  const declineChargePact = () => {
+    logEvent('INFO', `Charge Pact declined by ${activePactProposal?.owner}. Searching for next feasible candidate.`);
+    setActivePactProposal(null);
+    pactCooldownRef.current = 5; // very short cooldown so it triggers again immediately on next tick and picks someone else
+    // Note: in a fully robust system we'd track rejected proposals to avoid proposing to them again immediately.
+    // For this hackathon demo, the shortest wait time/compromise count will just re-select them unless we tweak it,
+    // so let's temporarily bump their simulated burden just for this session so we pick someone else next.
+    if (activePactProposal) {
+        setVehicles(prev => prev.map(ev => {
+            if (ev.id === activePactProposal.evId) {
+                // Fake a higher wait time in local state so they get skipped next iteration
+                return {...ev, temporaryRejectPenalty: (ev.temporaryRejectPenalty || 0) + 999};
+            }
+            return ev;
+        }));
+    }
+  };
+
   return {
     vehicles: solvedState.vehicles,
     gridMetrics: solvedState.gridMetrics,
@@ -316,6 +453,7 @@ export function useGridSimulation() {
     triggerSolarCloudDrop,
     triggerCurtailmentEvent,
     triggerFleetRush,
+    triggerGridShortageDemo,
     resetScenarios,
     // Vehicle controls
     updateVehiclePriority,
@@ -323,6 +461,10 @@ export function useGridSimulation() {
     updateVehicleTarget,
     addVehicle,
     removeVehicle,
-    logEvent
+    logEvent,
+    // Charge Pact exports
+    activePactProposal,
+    acceptChargePact,
+    declineChargePact
   };
 }

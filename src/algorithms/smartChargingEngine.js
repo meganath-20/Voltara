@@ -7,6 +7,15 @@
 export const MIN_CHARGER_POWER_KW = 1.38; // Standard J1772/Type 2 minimum (6A @ 230V)
 export const AC_VOLTAGE = 230;
 
+export function getWattWiseEfficiency(kw) {
+  if (kw <= 0) return 100;
+  if (kw <= 3) return 95;
+  if (kw <= 5) return 95 - ((kw - 3) / 2) * 1; // 3->95, 5->94
+  if (kw <= 7) return 94 - ((kw - 5) / 2) * 4; // 5->94, 7->90
+  if (kw <= 11) return 90 - ((kw - 7) / 4) * 5; // 7->90, 11->85
+  return Math.max(80, 85 - ((kw - 11) / 5) * 5); // >11 extrapolates down
+}
+
 /**
  * Calculates urgency score and scheduling parameters for a single EV.
  */
@@ -177,6 +186,16 @@ export function solveOptimalPowerDistribution(vehicles, gridConfig) {
     const finalKW = Math.max(0, Number(ev.allocatedPowerKW.toFixed(2)));
     const amps = Number(((finalKW * 1000) / AC_VOLTAGE).toFixed(1));
 
+    // WattWise Efficiency Calculation
+    let efficiencyPercent = 100;
+    if (finalKW > 0) {
+      efficiencyPercent = getWattWiseEfficiency(finalKW);
+    }
+    efficiencyPercent = Math.min(100, Math.max(80, Math.round(efficiencyPercent)));
+    
+    const usefulBatteryEnergyKW = finalKW * (efficiencyPercent / 100);
+    const wastedEnergyKW = finalKW - usefulBatteryEnergyKW;
+
     let status = ev.status;
     if (ev.isCompleted) {
       status = 'COMPLETED';
@@ -194,6 +213,9 @@ export function solveOptimalPowerDistribution(vehicles, gridConfig) {
       ...ev,
       currentAllocatedPower: finalKW,
       allocatedAmps: amps,
+      efficiencyPercent,
+      usefulBatteryEnergyKW: Number(usefulBatteryEnergyKW.toFixed(2)),
+      wastedEnergyKW: Number(wastedEnergyKW.toFixed(2)),
       status,
       isOverloadShedded: !ev.isCompleted && !ev.isPaused && finalKW === 0
     };
@@ -216,6 +238,9 @@ function calculateGridTotals(vehicles, gridConfig, availableEVHeadroom, cleanSur
   } = gridConfig;
 
   const totalEVChargingKW = vehicles.reduce((sum, ev) => sum + (ev.currentAllocatedPower || 0), 0);
+  const totalWastedEnergyKW = vehicles.reduce((sum, ev) => sum + (ev.wastedEnergyKW || 0), 0);
+  const totalUsefulEnergyKW = vehicles.reduce((sum, ev) => sum + (ev.usefulBatteryEnergyKW || 0), 0);
+  
   const totalFacilityDemandKW = baseBuildingLoadKW + totalEVChargingKW;
   const netUtilityGridImportKW = Math.max(0, totalFacilityDemandKW - solarGenerationKW);
   const netGridExportKW = Math.max(0, solarGenerationKW - totalFacilityDemandKW);
@@ -250,6 +275,8 @@ function calculateGridTotals(vehicles, gridConfig, availableEVHeadroom, cleanSur
       totalFacilityDemandKW: Number(totalFacilityDemandKW.toFixed(2)),
       netUtilityGridImportKW: Number(netUtilityGridImportKW.toFixed(2)),
       netGridExportKW: Number(netGridExportKW.toFixed(2)),
+      totalUsefulEnergyKW: Number(totalUsefulEnergyKW.toFixed(2)),
+      totalWastedEnergyKW: Number(totalWastedEnergyKW.toFixed(2)),
       transformerLoadPercent: Number(transformerLoadPercent.toFixed(1)),
       transformerHeadroomKW: Number(transformerHeadroomKW.toFixed(2)),
       availableEVHeadroom: Number(availableEVHeadroom.toFixed(2)),
