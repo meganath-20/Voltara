@@ -210,16 +210,17 @@ export function App() {
           <section id="ev-bays" className="page-section">
             <ScrollReveal>
               <div className="section-heading-group">
-                <span className="section-eyebrow">04 — EV Bays</span>
-                <h2 className="section-main-title">Connected EV Charging Cluster</h2>
+                <span className="section-eyebrow">04 — EV BAYS</span>
+                <h2 className="section-main-title">Every vehicle. Smarter charging.</h2>
                 <p className="section-subtitle">
-                  Multi-vehicle fair-share water-filling allocation dynamically modulated by battery deficit, departure deadlines, and thermal safety headroom.
+                  Voltara dynamically allocates charging power based on battery state, departure time, grid capacity and available renewable energy.
                 </p>
               </div>
             </ScrollReveal>
             <ScrollReveal>
               <ChargingBayGrid
                 vehicles={vehicles}
+                gridMetrics={gridMetrics}
                 onUpdatePriority={updateVehiclePriority}
                 onTogglePause={toggleVehiclePause}
                 onRemoveVehicle={removeVehicle}
