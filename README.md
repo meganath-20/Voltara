@@ -1,20 +1,16 @@
-<<<<<<< HEAD
-# React + Vite
+# Voltara
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Intelligent EV charging coordination & localized microgrid balancing system with real-time overload prevention, solar surplus optimization, and dynamic deadline scheduling.
 
-Currently, two official plugins are available:
+## Features
+- **Adaptive Power Allocation**: Dynamic fair-share water-filling algorithm with deadline urgency scheduling.
+- **Microgrid Balancing**: Rooftop solar PV self-consumption optimization and peak shaving.
+- **Transformer Protection**: Real-time overload prevention with automatic load modulation and peak shaving.
+- **Live Telemetry & Diagnostics**: Real-time multi-stream power graphs and event telemetry.
+- **Interactive Scenarios**: Instant stress-testing for HVAC spikes, cloud dips, demand response curtailments, and emergency fleet rushes.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
-=======
-# WindX
->>>>>>> aeeb31623ca187ab6fd309d5df449ca30da432e1
+## Tech Stack
+- React 19 + Vite
+- Lucide React
+- HTML5 Canvas for real-time telemetry rendering
+- Pure CSS design system with custom properties

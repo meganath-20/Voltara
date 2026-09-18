@@ -23,7 +23,7 @@ export function useGridSimulation() {
       id: 1,
       timestamp: '13:30:00',
       type: 'INFO',
-      message: 'VoltGrid microgrid load balancer initialized. 6 bays active.'
+      message: 'Voltara microgrid load balancer initialized. 6 bays active.'
     },
     {
       id: 2,

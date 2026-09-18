@@ -42,7 +42,7 @@ export function ScenarioControls({
       </div>
 
       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        Trigger real-world localized grid challenges with one click to observe how VoltGrid's algorithm prevents transformer overload in real time:
+        Trigger real-world localized grid challenges with one click to observe how Voltara's algorithm prevents transformer overload in real time:
       </p>
 
       {/* 1-Click Stress Test Quick-Launchers */}

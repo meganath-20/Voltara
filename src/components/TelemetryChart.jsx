@@ -36,9 +36,9 @@ export function TelemetryChart({ telemetryHistory, currentGridLimit }) {
     maxKW = Math.ceil(maxKW / 20) * 20; // round to nearest 20
 
     // Draw Grid Lines & Y Axis Labels
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.strokeStyle = 'rgba(16, 42, 42, 0.08)';
     ctx.lineWidth = 1;
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#536B69';
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
 
@@ -56,7 +56,7 @@ export function TelemetryChart({ telemetryHistory, currentGridLimit }) {
     }
 
     if (telemetryHistory.length < 2) {
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#7E9694';
       ctx.textAlign = 'center';
       ctx.fillText('Accumulating real-time telemetry stream...', drawWidth / 2, drawHeight / 2);
       return;
@@ -109,26 +109,26 @@ export function TelemetryChart({ telemetryHistory, currentGridLimit }) {
       ctx.restore();
     };
 
-    // 1. Solar Generation (Green fill)
+    // 1. Solar Generation (Primary Green fill)
     const solarGrad = ctx.createLinearGradient(0, padding.top, 0, drawHeight);
-    solarGrad.addColorStop(0, 'rgba(0, 245, 155, 0.25)');
-    solarGrad.addColorStop(1, 'rgba(0, 245, 155, 0.0)');
-    drawSeries('#00f59b', pt => pt.solarGeneration, false, solarGrad);
+    solarGrad.addColorStop(0, 'rgba(8, 127, 91, 0.20)');
+    solarGrad.addColorStop(1, 'rgba(8, 127, 91, 0.0)');
+    drawSeries('#087F5B', pt => pt.solarGeneration, false, solarGrad);
 
-    // 2. EV Total Load (Cyan)
+    // 2. EV Total Load (Electric Blue fill)
     const evGrad = ctx.createLinearGradient(0, padding.top, 0, drawHeight);
-    evGrad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
-    evGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
-    drawSeries('#38bdf8', pt => pt.evTotalLoad, false, evGrad);
+    evGrad.addColorStop(0, 'rgba(21, 151, 229, 0.20)');
+    evGrad.addColorStop(1, 'rgba(21, 151, 229, 0.0)');
+    drawSeries('#1597E5', pt => pt.evTotalLoad, false, evGrad);
 
     // 3. Base Building Load (Violet)
-    drawSeries('#a855f7', pt => pt.buildingLoad);
+    drawSeries('#845EF7', pt => pt.buildingLoad);
 
-    // 4. Net Grid Import (Amber)
-    drawSeries('#f59e0b', pt => pt.netGridImport);
+    // 4. Net Grid Import (Warning Amber)
+    drawSeries('#E9A23B', pt => pt.netGridImport);
 
     // 5. Transformer Hard Limit (Dashed Red Line)
-    drawSeries('#f43f5e', pt => pt.transformerLimit, true);
+    drawSeries('#E05252', pt => pt.transformerLimit, true);
 
     // Draw last point glowing pulses
     const lastPt = telemetryHistory[telemetryHistory.length - 1];
@@ -147,8 +147,8 @@ export function TelemetryChart({ telemetryHistory, currentGridLimit }) {
       ctx.stroke();
     };
 
-    drawDot(lastPt.evTotalLoad, '#38bdf8');
-    drawDot(lastPt.solarGeneration, '#00f59b');
+    drawDot(lastPt.evTotalLoad, '#1597E5');
+    drawDot(lastPt.solarGeneration, '#087F5B');
 
   }, [telemetryHistory, currentGridLimit]);
 
@@ -174,23 +174,23 @@ export function TelemetryChart({ telemetryHistory, currentGridLimit }) {
       {/* Interactive Legend */}
       <div className="chart-legend">
         <div className="legend-item">
-          <span className="legend-color-box" style={{ background: '#f43f5e', border: '1px dashed #fff' }} />
+          <span className="legend-color-box" style={{ background: '#E05252', border: '1px dashed #E05252' }} />
           <span>Transformer Limit (kW)</span>
         </div>
         <div className="legend-item">
-          <span className="legend-color-box" style={{ background: '#38bdf8' }} />
+          <span className="legend-color-box" style={{ background: '#1597E5' }} />
           <span>EV Cluster Load (kW)</span>
         </div>
         <div className="legend-item">
-          <span className="legend-color-box" style={{ background: '#00f59b' }} />
+          <span className="legend-color-box" style={{ background: '#087F5B' }} />
           <span>Solar PV Generation (kW)</span>
         </div>
         <div className="legend-item">
-          <span className="legend-color-box" style={{ background: '#a855f7' }} />
+          <span className="legend-color-box" style={{ background: '#845EF7' }} />
           <span>Facility Building Load (kW)</span>
         </div>
         <div className="legend-item">
-          <span className="legend-color-box" style={{ background: '#f59e0b' }} />
+          <span className="legend-color-box" style={{ background: '#E9A23B' }} />
           <span>Net Grid Import (kW)</span>
         </div>
       </div>

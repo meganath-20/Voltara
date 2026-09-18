@@ -1,246 +1,338 @@
 import React from 'react';
-import { Sun, Zap, Building2, BatteryCharging, Radio } from 'lucide-react';
+import { Sun, Zap, Building2, BatteryCharging, ArrowDown, ArrowUp, Activity, ShieldCheck, RefreshCw } from 'lucide-react';
 
 export function EnergyFlowDiagram({ gridMetrics }) {
   const {
-    netUtilityGridImportKW,
-    solarGenerationKW,
-    baseBuildingLoadKW,
-    totalEVChargingKW,
-    renewableEVSharePercent,
-    transformerCapacityKW,
-    cleanEnergySelfConsumptionPercent
-  } = gridMetrics;
+    netUtilityGridImportKW = 0,
+    netGridExportKW = 0,
+    solarGenerationKW = 0,
+    baseBuildingLoadKW = 0,
+    totalEVChargingKW = 0,
+    renewableEVSharePercent = 0,
+    transformerCapacityKW = 120,
+    transformerHeadroomKW = 0,
+    cleanEnergySelfConsumptionPercent = 100,
+    totalFacilityDemandKW = 0
+  } = gridMetrics || {};
 
-  // Determine flow speeds (higher kW = faster animated dashes)
-  const gridFlowDuration = netUtilityGridImportKW > 1 
-    ? `${Math.max(0.6, 3.5 - (netUtilityGridImportKW / transformerCapacityKW) * 2.5)}s` 
+  const isExporting = netGridExportKW > 0;
+  const isImporting = netUtilityGridImportKW > 0;
+
+  // Calculate flow speeds (higher kW = faster dashed animation)
+  const gridFlowDuration = (isImporting ? netUtilityGridImportKW : netGridExportKW) > 1 
+    ? `${Math.max(0.7, 3.2 - ((isImporting ? netUtilityGridImportKW : netGridExportKW) / transformerCapacityKW) * 2.2)}s` 
     : '0s';
   const solarFlowDuration = solarGenerationKW > 1 
-    ? `${Math.max(0.6, 3.5 - (solarGenerationKW / 60) * 2.5)}s` 
+    ? `${Math.max(0.6, 3.2 - (solarGenerationKW / 60) * 2.2)}s` 
     : '0s';
-  const buildingFlowDuration = `${Math.max(0.7, 3.5 - (baseBuildingLoadKW / 80) * 2.5)}s`;
+  const buildingFlowDuration = `${Math.max(0.7, 3.2 - (baseBuildingLoadKW / 85) * 2.2)}s`;
   const evFlowDuration = totalEVChargingKW > 1 
-    ? `${Math.max(0.5, 3.5 - (totalEVChargingKW / 90) * 2.5)}s` 
+    ? `${Math.max(0.5, 3.2 - (totalEVChargingKW / 95) * 2.2)}s` 
     : '0s';
 
   return (
-    <div className="glass-panel topology-card">
-      <div className="section-header">
-        <h2 className="section-title">
-          <Radio size={20} color="#38bdf8" />
-          Localized Power Topology & Live Energy Routing
-        </h2>
-        <span className="section-badge">
-          Active Self-Balancing Bus
-        </span>
+    <div className="energy-flow-card">
+      {/* Top Diagram Header */}
+      <div className="flow-card-header">
+        <div className="flow-title-group">
+          <div className="flow-icon-symbol">
+            <Activity size={18} />
+          </div>
+          <div>
+            <h3 className="flow-main-heading">Site Power Dispatch & Routing</h3>
+            <p className="flow-sub-heading">Real-time localized energy distribution topology</p>
+          </div>
+        </div>
+
+        <div className="flow-badges-group">
+          <div className="flow-pill solar-pill">
+            <Sun size={13} />
+            <span>{renewableEVSharePercent}% EV Solar Share</span>
+          </div>
+          <div className="flow-pill bus-pill">
+            <RefreshCw size={13} />
+            <span>Self-Balancing Bus</span>
+          </div>
+        </div>
       </div>
 
-      <div className="flow-diagram-container">
+      {/* Main SVG Energy Topology Surface */}
+      <div className="flow-canvas-container">
         <svg 
-          viewBox="0 0 800 360" 
+          viewBox="0 0 840 440" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
+          className="flow-svg-viewport"
         >
           <defs>
-            {/* Gradients */}
-            <linearGradient id="gridToHub" x1="160" y1="90" x2="400" y2="180" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.8" />
+            {/* Subtle light background dot pattern */}
+            <pattern id="flowGridDots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.2" fill="#DDE9E6" />
+            </pattern>
+
+            {/* Gradient Paths */}
+            <linearGradient id="solarToBusGrad" x1="180" y1="90" x2="420" y2="220" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#087F5B" />
+              <stop offset="100%" stopColor="#12B886" />
             </linearGradient>
 
-            <linearGradient id="solarToHub" x1="640" y1="90" x2="400" y2="180" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#00f59b" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.9" />
+            <linearGradient id="gridToBusGrad" x1="660" y1="90" x2="420" y2="220" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#1597E5" />
+              <stop offset="100%" stopColor="#087F5B" />
             </linearGradient>
 
-            <linearGradient id="hubToBuilding" x1="400" y1="180" x2="160" y2="280" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#a855f7" stopOpacity="0.8" />
+            <linearGradient id="busToGridExportGrad" x1="420" y1="220" x2="660" y2="90" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#12B886" />
+              <stop offset="100%" stopColor="#087F5B" />
             </linearGradient>
 
-            <linearGradient id="hubToEV" x1="400" y1="180" x2="640" y2="280" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#00f59b" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.9" />
+            <linearGradient id="busToBuildingGrad" x1="420" y1="220" x2="180" y2="350" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#12B886" />
+              <stop offset="100%" stopColor="#7950F2" />
             </linearGradient>
 
-            {/* Glow Filters */}
-            <filter id="glow-hub" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="8" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            <linearGradient id="busToEVGrad" x1="420" y1="220" x2="660" y2="350" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#12B886" />
+              <stop offset="100%" stopColor="#1597E5" />
+            </linearGradient>
+
+            {/* Drop Shadows */}
+            <filter id="nodeCardShadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#102A2A" floodOpacity="0.06" />
             </filter>
-            <filter id="glow-solar" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            <filter id="busGlowShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="4" stdDeviation="10" floodColor="#087F5B" floodOpacity="0.15" />
             </filter>
           </defs>
 
-          {/* BACKGROUND WIRES (DIM) */}
-          <path d="M 170 90 C 270 90, 310 180, 400 180" stroke="rgba(255,255,255,0.06)" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <path d="M 630 90 C 530 90, 490 180, 400 180" stroke="rgba(255,255,255,0.06)" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <path d="M 400 180 C 310 180, 270 270, 170 270" stroke="rgba(255,255,255,0.06)" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <path d="M 400 180 C 490 180, 530 270, 630 270" stroke="rgba(255,255,255,0.06)" strokeWidth="8" fill="none" strokeLinecap="round" />
+          {/* Background Surface */}
+          <rect width="840" height="440" rx="16" fill="#F8FBFA" />
+          <rect width="840" height="440" rx="16" fill="url(#flowGridDots)" />
 
-          {/* ACTIVE FLOW PARTICLES / DASHES */}
-          {/* 1. Grid -> Hub */}
-          {netUtilityGridImportKW > 1 && (
-            <path
-              d="M 170 90 C 270 90, 310 180, 400 180"
-              stroke="url(#gridToHub)"
-              strokeWidth="4"
-              fill="none"
-              strokeLinecap="round"
-              strokeDasharray="8 12"
-              style={{
-                animation: `flowDash ${gridFlowDuration} linear infinite`
-              }}
-            />
-          )}
+          {/* BACKGROUND CONDUIT TRACKS */}
+          <path d="M 180 90 C 290 90, 320 220, 420 220" stroke="#DDEAE7" strokeWidth="10" fill="none" strokeLinecap="round" />
+          <path d="M 660 90 C 550 90, 520 220, 420 220" stroke="#DDEAE7" strokeWidth="10" fill="none" strokeLinecap="round" />
+          <path d="M 420 220 C 320 220, 290 350, 180 350" stroke="#DDEAE7" strokeWidth="10" fill="none" strokeLinecap="round" />
+          <path d="M 420 220 C 520 220, 550 350, 660 350" stroke="#DDEAE7" strokeWidth="10" fill="none" strokeLinecap="round" />
 
-          {/* 2. Solar -> Hub */}
+          {/* ACTIVE ANIMATED ENERGY FLOW PARTICLES */}
+          {/* 1. Solar -> Bus Flow (Green) */}
           {solarGenerationKW > 1 && (
             <path
-              d="M 630 90 C 530 90, 490 180, 400 180"
-              stroke="url(#solarToHub)"
+              d="M 180 90 C 290 90, 320 220, 420 220"
+              stroke="url(#solarToBusGrad)"
               strokeWidth="5"
               fill="none"
               strokeLinecap="round"
               strokeDasharray="8 12"
-              style={{
-                animation: `flowDashReverse ${solarFlowDuration} linear infinite`
-              }}
+              className="flow-path-forward"
+              style={{ animationDuration: solarFlowDuration }}
             />
           )}
 
-          {/* 3. Hub -> Facility Building Load */}
-          <path
-            d="M 400 180 C 310 180, 270 270, 170 270"
-            stroke="url(#hubToBuilding)"
-            strokeWidth="4"
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray="8 12"
-            style={{
-              animation: `flowDash ${buildingFlowDuration} linear infinite`
-            }}
-          />
+          {/* 2. Grid -> Bus Flow (Blue Import) OR Bus -> Grid (Green Export) */}
+          {isImporting && (
+            <path
+              d="M 660 90 C 550 90, 520 220, 420 220"
+              stroke="url(#gridToBusGrad)"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray="8 12"
+              className="flow-path-forward"
+              style={{ animationDuration: gridFlowDuration }}
+            />
+          )}
 
-          {/* 4. Hub -> EV Cluster */}
+          {isExporting && (
+            <path
+              d="M 420 220 C 520 220, 550 90, 660 90"
+              stroke="url(#busToGridExportGrad)"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray="8 12"
+              className="flow-path-forward"
+              style={{ animationDuration: gridFlowDuration }}
+            />
+          )}
+
+          {/* 3. Bus -> Facility Building Demand Flow (Purple) */}
+          {baseBuildingLoadKW > 1 && (
+            <path
+              d="M 420 220 C 320 220, 290 350, 180 350"
+              stroke="url(#busToBuildingGrad)"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray="8 12"
+              className="flow-path-forward"
+              style={{ animationDuration: buildingFlowDuration }}
+            />
+          )}
+
+          {/* 4. Bus -> Smart EV Cluster Flow (Green / Blue) */}
           {totalEVChargingKW > 1 && (
             <path
-              d="M 400 180 C 490 180, 530 270, 630 270"
-              stroke="url(#hubToEV)"
+              d="M 420 220 C 520 220, 550 350, 660 350"
+              stroke="url(#busToEVGrad)"
               strokeWidth="5"
               fill="none"
               strokeLinecap="round"
               strokeDasharray="8 12"
-              style={{
-                animation: `flowDash ${evFlowDuration} linear infinite`
-              }}
+              className="flow-path-forward"
+              style={{ animationDuration: evFlowDuration }}
             />
           )}
 
-          {/* NODES */}
-          {/* Node 1: Grid (Top Left) */}
-          <g transform="translate(170, 90)">
-            <circle r="44" fill="#0b1329" stroke="#f59e0b" strokeWidth="2" />
-            <circle r="48" fill="none" stroke="rgba(245, 158, 11, 0.2)" strokeWidth="1" strokeDasharray="4 4" />
-            <foreignObject x="-36" y="-36" width="72" height="72">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#f59e0b' }}>
-                <Zap size={22} />
-                <span style={{ fontSize: '11px', fontWeight: 800, fontFamily: 'var(--font-mono)', marginTop: 2 }}>
-                  {netUtilityGridImportKW} kW
-                </span>
-              </div>
+          {/* ============================================================
+              FOUR MAJOR STAGE NODES (Solar, Grid, Building, EV Cluster)
+             ============================================================ */}
+
+          {/* STAGE 1: SOLAR (Top Left) */}
+          <g transform="translate(180, 90)" className="diagram-node">
+            <rect x="-85" y="-45" width="170" height="90" rx="16" fill="#FFFFFF" stroke="#087F5B" strokeWidth="2" filter="url(#nodeCardShadow)" />
+            <circle cx="-50" cy="0" r="22" fill="rgba(8, 127, 91, 0.1)" />
+            <foreignObject x="-62" y="-12" width="24" height="24">
+              <Sun size={24} color="#087F5B" />
             </foreignObject>
-            <text y="60" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="600" fontFamily="var(--font-heading)">
-              UTILITY GRID
+            <text x="-15" y="-14" fill="#536B69" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)" letterSpacing="0.05em">
+              1. ROOFTOP SOLAR
+            </text>
+            <text x="-15" y="10" fill="#102A2A" fontSize="20" fontWeight="800" fontFamily="var(--font-heading)">
+              {solarGenerationKW} <tspan fontSize="12" fill="#536B69">kW</tspan>
+            </text>
+            <text x="-15" y="28" fill="#087F5B" fontSize="10" fontWeight="600" fontFamily="var(--font-mono)">
+              {cleanEnergySelfConsumptionPercent}% Self-Used
             </text>
           </g>
 
-          {/* Node 2: Solar PV (Top Right) */}
-          <g transform="translate(630, 90)">
-            <circle r="44" fill="#071b1e" stroke="#00f59b" strokeWidth="2" filter="url(#glow-solar)" />
-            <circle r="48" fill="none" stroke="rgba(0, 245, 155, 0.25)" strokeWidth="1" strokeDasharray="4 4" />
-            <foreignObject x="-36" y="-36" width="72" height="72">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#00f59b' }}>
-                <Sun size={22} />
-                <span style={{ fontSize: '11px', fontWeight: 800, fontFamily: 'var(--font-mono)', marginTop: 2 }}>
-                  {solarGenerationKW} kW
-                </span>
-              </div>
+          {/* STAGE 2: GRID & SUBSTATION (Top Right) */}
+          <g transform="translate(660, 90)" className="diagram-node">
+            <rect 
+              x="-85" 
+              y="-45" 
+              width="170" 
+              height="90" 
+              rx="16" 
+              fill="#FFFFFF" 
+              stroke={isImporting ? '#1597E5' : '#087F5B'} 
+              strokeWidth="2" 
+              filter="url(#nodeCardShadow)" 
+            />
+            <circle cx="-50" cy="0" r="22" fill={isImporting ? 'rgba(21, 151, 229, 0.1)' : 'rgba(8, 127, 91, 0.1)'} />
+            <foreignObject x="-62" y="-12" width="24" height="24">
+              <Zap size={24} color={isImporting ? '#1597E5' : '#087F5B'} />
             </foreignObject>
-            <text y="60" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="600" fontFamily="var(--font-heading)">
-              ROOFTOP SOLAR PV
+            <text x="-15" y="-14" fill="#536B69" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)" letterSpacing="0.05em">
+              2. {isExporting ? 'GRID EXPORT' : 'UTILITY GRID'}
+            </text>
+            <text x="-15" y="10" fill="#102A2A" fontSize="20" fontWeight="800" fontFamily="var(--font-heading)">
+              {isExporting ? netGridExportKW : netUtilityGridImportKW} <tspan fontSize="12" fill="#536B69">kW</tspan>
+            </text>
+            <text x="-15" y="28" fill={isImporting ? '#1597E5' : '#087F5B'} fontSize="10" fontWeight="600" fontFamily="var(--font-mono)">
+              {transformerHeadroomKW} kW Headroom
             </text>
           </g>
 
-          {/* Node 3: Center Bus / EMS (Center) */}
-          <g transform="translate(400, 180)">
-            <circle r="52" fill="#0f172a" stroke="#38bdf8" strokeWidth="2.5" filter="url(#glow-hub)" />
-            <circle r="58" fill="none" stroke="rgba(56, 189, 248, 0.3)" strokeWidth="1" strokeDasharray="6 6">
-              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="20s" repeatCount="indefinite" />
+          {/* STAGE 3: BUILDING INFRASTRUCTURE (Bottom Left) */}
+          <g transform="translate(180, 350)" className="diagram-node">
+            <rect x="-85" y="-45" width="170" height="90" rx="16" fill="#FFFFFF" stroke="#7950F2" strokeWidth="2" filter="url(#nodeCardShadow)" />
+            <circle cx="-50" cy="0" r="22" fill="rgba(121, 80, 242, 0.1)" />
+            <foreignObject x="-62" y="-12" width="24" height="24">
+              <Building2 size={24} color="#7950F2" />
+            </foreignObject>
+            <text x="-15" y="-14" fill="#536B69" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)" letterSpacing="0.05em">
+              3. BUILDING DEMAND
+            </text>
+            <text x="-15" y="10" fill="#102A2A" fontSize="20" fontWeight="800" fontFamily="var(--font-heading)">
+              {baseBuildingLoadKW} <tspan fontSize="12" fill="#536B69">kW</tspan>
+            </text>
+            <text x="-15" y="28" fill="#7950F2" fontSize="10" fontWeight="600" fontFamily="var(--font-mono)">
+              HVAC, IT & Lighting
+            </text>
+          </g>
+
+          {/* STAGE 4: SMART EV CLUSTER (Bottom Right) */}
+          <g transform="translate(660, 350)" className="diagram-node">
+            <rect x="-85" y="-45" width="170" height="90" rx="16" fill="#FFFFFF" stroke="#12B886" strokeWidth="2" filter="url(#nodeCardShadow)" />
+            <circle cx="-50" cy="0" r="22" fill="rgba(18, 184, 134, 0.1)" />
+            <foreignObject x="-62" y="-12" width="24" height="24">
+              <BatteryCharging size={24} color="#087F5B" />
+            </foreignObject>
+            <text x="-15" y="-14" fill="#536B69" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)" letterSpacing="0.05em">
+              4. EV CHARGING
+            </text>
+            <text x="-15" y="10" fill="#102A2A" fontSize="20" fontWeight="800" fontFamily="var(--font-heading)">
+              {totalEVChargingKW} <tspan fontSize="12" fill="#536B69">kW</tspan>
+            </text>
+            <text x="-15" y="28" fill="#087F5B" fontSize="10" fontWeight="600" fontFamily="var(--font-mono)">
+              Dynamic Water-Filling
+            </text>
+          </g>
+
+          {/* CENTRAL EMS BALANCING HUB (Voltara Bus) */}
+          <g transform="translate(420, 220)">
+            <circle r="60" fill="#FFFFFF" stroke="#087F5B" strokeWidth="3" filter="url(#busGlowShadow)" />
+            <circle r="66" fill="none" stroke="#12B886" strokeWidth="1.5" strokeDasharray="5 5" opacity="0.7">
+              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="25s" repeatCount="indefinite" />
             </circle>
-            <foreignObject x="-44" y="-44" width="88" height="88">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center' }}>
-                <span style={{ fontSize: '9px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.05em' }}>
-                  VOLTGRID BUS
-                </span>
-                <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
-                  {gridMetrics.totalFacilityDemandKW}
-                </span>
-                <span style={{ fontSize: '8px', color: '#94a3b8' }}>
-                  kW Cluster Flow
-                </span>
-              </div>
-            </foreignObject>
-            <text y="72" textAnchor="middle" fill="#38bdf8" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)">
+            
+            <text y="-22" textAnchor="middle" fill="#087F5B" fontSize="10" fontWeight="800" fontFamily="var(--font-mono)" letterSpacing="0.08em">
+              VOLTARA BUS
+            </text>
+            <text y="4" textAnchor="middle" fill="#102A2A" fontSize="20" fontWeight="800" fontFamily="var(--font-heading)">
+              {totalFacilityDemandKW}
+            </text>
+            <text y="18" textAnchor="middle" fill="#536B69" fontSize="10" fontWeight="600" fontFamily="var(--font-mono)">
+              kW Total Demand
+            </text>
+            
+            {/* Clean Status Pill inside hub */}
+            <rect x="-48" y="26" width="96" height="18" rx="9" fill="rgba(8, 127, 91, 0.1)" />
+            <text y="38" textAnchor="middle" fill="#087F5B" fontSize="8.5" fontWeight="700" fontFamily="var(--font-mono)">
               {renewableEVSharePercent}% SOLAR ROUTED
             </text>
           </g>
-
-          {/* Node 4: Facility Demand (Bottom Left) */}
-          <g transform="translate(170, 270)">
-            <circle r="44" fill="#171026" stroke="#a855f7" strokeWidth="2" />
-            <foreignObject x="-36" y="-36" width="72" height="72">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#a855f7' }}>
-                <Building2 size={22} />
-                <span style={{ fontSize: '11px', fontWeight: 800, fontFamily: 'var(--font-mono)', marginTop: 2 }}>
-                  {baseBuildingLoadKW} kW
-                </span>
-              </div>
-            </foreignObject>
-            <text y="60" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="600" fontFamily="var(--font-heading)">
-              BUILDING LOAD
-            </text>
-          </g>
-
-          {/* Node 5: Smart EV Cluster (Bottom Right) */}
-          <g transform="translate(630, 270)">
-            <circle r="44" fill="#091b29" stroke="#38bdf8" strokeWidth="2" />
-            <foreignObject x="-36" y="-36" width="72" height="72">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#38bdf8' }}>
-                <BatteryCharging size={22} />
-                <span style={{ fontSize: '11px', fontWeight: 800, fontFamily: 'var(--font-mono)', marginTop: 2 }}>
-                  {totalEVChargingKW} kW
-                </span>
-              </div>
-            </foreignObject>
-            <text y="60" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="600" fontFamily="var(--font-heading)">
-              SMART EV CLUSTER
-            </text>
-          </g>
         </svg>
+      </div>
 
-        <style>{`
-          @keyframes flowDash {
-            to { stroke-dashoffset: -20; }
-          }
-          @keyframes flowDashReverse {
-            to { stroke-dashoffset: 20; }
-          }
-        `}</style>
+      {/* Diagram Footer: 4-Node Process Progression Strip */}
+      <div className="flow-story-strip">
+        <div className="story-step">
+          <div className="step-num">01</div>
+          <div className="step-info">
+            <span className="step-name">Harvest Solar</span>
+            <span className="step-detail">{solarGenerationKW} kW generation prioritize local use</span>
+          </div>
+        </div>
+        <div className="story-arrow">→</div>
+
+        <div className="story-step">
+          <div className="step-num">02</div>
+          <div className="step-info">
+            <span className="step-name">Sample Grid</span>
+            <span className="step-detail">{isExporting ? `Exporting ${netGridExportKW} kW` : `Importing ${netUtilityGridImportKW} kW`}</span>
+          </div>
+        </div>
+        <div className="story-arrow">→</div>
+
+        <div className="story-step">
+          <div className="step-num">03</div>
+          <div className="step-info">
+            <span className="step-name">Support Building</span>
+            <span className="step-detail">{baseBuildingLoadKW} kW baseline load guaranteed</span>
+          </div>
+        </div>
+        <div className="story-arrow">→</div>
+
+        <div className="story-step">
+          <div className="step-num">04</div>
+          <div className="step-info">
+            <span className="step-name">Charge EV Cluster</span>
+            <span className="step-detail">{totalEVChargingKW} kW dispatched safely</span>
+          </div>
+        </div>
       </div>
     </div>
   );
