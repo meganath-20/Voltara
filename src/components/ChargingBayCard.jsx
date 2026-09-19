@@ -143,6 +143,15 @@ function getSmartChargingStatus(vehicle, gridMetrics) {
   };
 }
 
+function getVehicleImage(model) {
+  if (!model) return '/assets/vehicles/tesla-model-y.jpg';
+  if (model.includes('Taycan') || model.includes('Porsche')) return '/assets/vehicles/porsche-taycan.jpg';
+  if (model.includes('Tesla') || model.includes('Model Y') || model.includes('Model 3')) return '/assets/vehicles/tesla-model-y.jpg';
+  if (model.includes('Rivian') || model.includes('R1T')) return '/assets/vehicles/rivian-r1t.jpg';
+  if (model.includes('Ford') || model.includes('Lightning') || model.includes('F-150')) return '/assets/vehicles/ford-f150.jpg';
+  return '/assets/vehicles/tesla-model-y.jpg';
+}
+
 export function ChargingBayCard({
   vehicle,
   gridMetrics,
@@ -188,38 +197,22 @@ export function ChargingBayCard({
     ? Math.min(100, Math.round((currentSoC / targetSoC) * 100))
     : 100;
 
-  // Vehicle avatar emoji
-  const vehicleEmoji = isCompleted ? '⚡' : (
-    model.includes('Truck') || model.includes('Rivian') || model.includes('Ford') ? '🛻' :
-    (model.includes('Taycan') || model.includes('BMW') || model.includes('Porsche') ? '🏎️' :
-    (model.includes('Tesla') || model.includes('Audi') ? '🚙' : '🚗'))
-  );
+  const vehicleImgSrc = getVehicleImage(model);
 
   return (
     <div className={`ev-bay-card ${isCharging ? 'is-active-charging' : ''} ${isCompleted ? 'is-ready' : ''} ${isThrottled ? 'is-throttled' : ''}`}>
-      {/* 1. Header: Avatar, Model, Driver, Bay Tag, Disconnect Button */}
-      <div className="ev-bay-card-header">
-        <div className="ev-vehicle-profile">
-          <div className="ev-avatar-box">
-            <span className="ev-avatar-emoji">{vehicleEmoji}</span>
-            {isCharging && <span className="ev-charging-beacon" />}
-          </div>
-          <div className="ev-vehicle-meta">
-            <div className="ev-vehicle-model-name" title={model}>
-              {model}
-            </div>
-            <div className="ev-driver-name">
-              {owner}
-              {fairnessScore > 0 && (
-                <span className="ev-fairness-badge" title="Charge Pacts Accepted (Fairness Memory)">
-                  +{fairnessScore} 🤝
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* 1. Top Showcase: Realistic Vehicle Image Banner with Overlay Controls */}
+      <div className="ev-vehicle-showcase">
+        <img 
+          src={vehicleImgSrc} 
+          alt={model} 
+          className="ev-card-vehicle-img"
+          loading="lazy"
+        />
+        <div className="ev-showcase-gradient-overlay" />
 
-        <div className="ev-bay-badge-group">
+        {/* Top Badges: Bay Chip & Disconnect Button */}
+        <div className="ev-showcase-top-row">
           <span className="ev-bay-chip font-mono">
             BAY {String(bay).padStart(2, '0')}
           </span>
@@ -232,6 +225,14 @@ export function ChargingBayCard({
             <X size={14} />
           </button>
         </div>
+
+        {/* Charging Beacon Active Pulse */}
+        {isCharging && (
+          <div className="ev-charging-live-badge" title="Active High-Power Current Flowing">
+            <span className="ev-live-sparkle-dot" />
+            <span>CHARGING • {currentAllocatedPower} kW</span>
+          </div>
+        )}
       </div>
 
       {/* 2. Smart Charging Rationale Status Banner */}
@@ -248,6 +249,23 @@ export function ChargingBayCard({
           <span className="ev-status-short-chip">{smartStatus.shortBadge}</span>
         </div>
         <p className="ev-status-reason-text">{smartStatus.reason}</p>
+      </div>
+
+      {/* 3. Driver and Vehicle Identity Header */}
+      <div className="ev-driver-id-row">
+        <div className="ev-vehicle-meta">
+          <div className="ev-vehicle-model-name" title={model}>
+            {model}
+          </div>
+          <div className="ev-driver-name">
+            {owner}
+            {fairnessScore > 0 && (
+              <span className="ev-fairness-badge" title="Charge Pacts Accepted (Fairness Memory)">
+                +{fairnessScore} 🤝
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 3. Battery State of Charge & Progress Toward Target */}

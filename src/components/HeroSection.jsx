@@ -93,177 +93,27 @@ export function HeroSection({ vehicles, gridMetrics, onExploreClick }) {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: Premium EV, Charger & Clean Energy Composition */}
+      {/* RIGHT COLUMN: Premium Realistic EV Showcase & Live Floating Telemetry */}
       <div className="hero-visual-col">
         <div className="hero-visual-card">
           {/* Ambient Lighting Gradients */}
           <div className="visual-ambient-glow" />
 
-          {/* SVG Composition: EV + Smart Pedestal + Solar Canopy */}
-          <svg
-            className="hero-svg-illustration"
-            viewBox="0 0 680 440"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <linearGradient id="carBodyGrad" x1="120" y1="180" x2="480" y2="340" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="45%" stopColor="#E6F4F1" />
-                <stop offset="100%" stopColor="#CBE5DF" />
-              </linearGradient>
-
-              <linearGradient id="carGlassGrad" x1="220" y1="190" x2="360" y2="260" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#0B2625" stopOpacity="0.85" />
-                <stop offset="100%" stopColor="#1B4240" stopOpacity="0.95" />
-              </linearGradient>
-
-              <linearGradient id="chargerGrad" x1="510" y1="160" x2="570" y2="360" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#122A29" />
-                <stop offset="100%" stopColor="#091A19" />
-              </linearGradient>
-
-              <linearGradient id="solarPanelGrad" x1="200" y1="40" x2="520" y2="120" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#0F3835" />
-                <stop offset="100%" stopColor="#071B1A" />
-              </linearGradient>
-
-              <linearGradient id="cableFlowGrad" x1="510" y1="260" x2="420" y2="270" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#1597E5" />
-                <stop offset="100%" stopColor="#087F5B" />
-              </linearGradient>
-
-              <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-            </defs>
-
-            {/* 1. Ground Surface & Subtle Perspective Lines */}
-            <ellipse cx="340" cy="375" rx="300" ry="38" fill="rgba(8, 127, 91, 0.05)" />
-            <ellipse cx="340" cy="375" rx="220" ry="24" fill="rgba(21, 151, 229, 0.04)" />
-            <line x1="80" y1="375" x2="600" y2="375" stroke="#DCE7E4" strokeWidth="1.5" strokeDasharray="6 6" />
-
-            {/* 2. Solar Canopy Above */}
-            <g transform="translate(180, 45)">
-              {/* Canopy Support Beam */}
-              <path d="M 160 50 L 160 140" stroke="#CBDCD8" strokeWidth="4" strokeLinecap="round" />
-              {/* Slanted Solar Panels */}
-              <polygon points="20,50 300,10 320,40 40,80" fill="url(#solarPanelGrad)" stroke="#12B886" strokeWidth="1.5" />
-              {/* Solar Cell Grid Lines */}
-              <line x1="90" y1="40" x2="110" y2="70" stroke="#12B886" strokeWidth="1" opacity="0.6" />
-              <line x1="160" y1="30" x2="180" y2="60" stroke="#12B886" strokeWidth="1" opacity="0.6" />
-              <line x1="230" y1="20" x2="250" y2="50" stroke="#12B886" strokeWidth="1" opacity="0.6" />
-              <line x1="30" y1="65" x2="310" y2="25" stroke="#12B886" strokeWidth="1" opacity="0.6" />
-              {/* Green Sun Sparkle */}
-              <circle cx="310" cy="12" r="3" fill="#087F5B" filter="url(#softGlow)" />
-            </g>
-
-            {/* 3. Electric Vehicle (EV) Body */}
-            <g id="ev-car-body">
-              {/* Car Shadow */}
-              <ellipse cx="275" cy="365" rx="195" ry="14" fill="rgba(16, 42, 42, 0.16)" />
-
-              {/* Main Silhouette */}
-              <path
-                d="M 90 330 
-                   C 95 305, 120 300, 145 295 
-                   C 170 290, 205 270, 235 220 
-                   C 265 175, 340 175, 395 220 
-                   C 425 245, 450 270, 465 295 
-                   C 475 310, 475 330, 460 340 
-                   C 440 348, 110 348, 90 330 Z"
-                fill="url(#carBodyGrad)"
-                stroke="#B8D5CE"
-                strokeWidth="2"
-              />
-
-              {/* Aerodynamic Roof & Greenhouse Glass */}
-              <path
-                d="M 230 225 
-                   C 255 185, 330 185, 385 225 
-                   L 410 265 
-                   L 205 265 Z"
-                fill="url(#carGlassGrad)"
-                stroke="#1B4240"
-                strokeWidth="1.5"
-              />
-              {/* Pillar Divider */}
-              <line x1="310" y1="192" x2="310" y2="265" stroke="#335E5B" strokeWidth="2.5" />
-
-              {/* Character Shoulder Line */}
-              <path
-                d="M 120 302 Q 280 282 455 302"
-                stroke="#94BEB5"
-                strokeWidth="2"
-                fill="none"
-              />
-
-              {/* Headlight & Tail Light */}
-              <path d="M 92 318 L 115 315 L 110 326 Z" fill="#1597E5" filter="url(#softGlow)" />
-              <path d="M 458 305 L 465 315 L 454 318 Z" fill="#E05252" />
-
-              {/* Wheels */}
-              {/* Front Wheel */}
-              <g transform="translate(175, 342)">
-                <circle r="30" fill="#0C1D1C" />
-                <circle r="22" fill="#1E3937" stroke="#087F5B" strokeWidth="1.5" />
-                <circle r="12" fill="#0C1D1C" />
-                <circle r="4" fill="#1597E5" />
-                {/* Spoke Accents */}
-                <line x1="-16" y1="0" x2="16" y2="0" stroke="#8EBDB3" strokeWidth="1.5" />
-                <line x1="0" y1="-16" x2="0" y2="16" stroke="#8EBDB3" strokeWidth="1.5" />
-              </g>
-
-              {/* Rear Wheel */}
-              <g transform="translate(385, 342)">
-                <circle r="30" fill="#0C1D1C" />
-                <circle r="22" fill="#1E3937" stroke="#087F5B" strokeWidth="1.5" />
-                <circle r="12" fill="#0C1D1C" />
-                <circle r="4" fill="#1597E5" />
-                {/* Spoke Accents */}
-                <line x1="-16" y1="0" x2="16" y2="0" stroke="#8EBDB3" strokeWidth="1.5" />
-                <line x1="0" y1="-16" x2="0" y2="16" stroke="#8EBDB3" strokeWidth="1.5" />
-              </g>
-
-              {/* Charging Port on Car (Rear Quarter) */}
-              <circle cx="430" cy="285" r="7" fill="#087F5B" />
-              <circle cx="430" cy="285" r="4" fill="#FFFFFF" />
-            </g>
-
-            {/* 4. Smart EV Charging Pedestal */}
-            <g id="smart-pedestal" transform="translate(530, 200)">
-              {/* Pedestal Base & Pillar */}
-              <rect x="-16" y="0" width="32" height="165" rx="8" fill="url(#chargerGrad)" stroke="#1C3D3A" strokeWidth="1.5" />
-              {/* Illuminated LED Status Strip */}
-              <rect x="-10" y="24" width="20" height="40" rx="4" fill="#087F5B" filter="url(#softGlow)" />
-              <rect x="-6" y="28" width="12" height="32" rx="2" fill="#FFFFFF" opacity="0.9" />
-              {/* Voltara Brand Emblem on Pedestal */}
-              <path d="M -2 76 L 3 83 L -1 83 L 1 90 L -4 84 L 0 84 Z" fill="#1597E5" />
-              {/* Charging Cable Holster */}
-              <circle cx="-16" cy="88" r="6" fill="#12B886" />
-            </g>
-
-            {/* 5. Connected Energy Flow Cable */}
-            {/* Cable from Pedestal to Car */}
-            <path
-              d="M 514 288 C 490 340, 465 315, 430 285"
-              stroke="#0C201F"
-              strokeWidth="5"
-              fill="none"
-              strokeLinecap="round"
+          {/* High-Resolution Realistic Centerpiece EV Visual */}
+          <div className="hero-image-stage">
+            <img 
+              src="/assets/hero-ev.jpg" 
+              alt="Voltara Smart Electric Vehicle Charging at Next-Gen Solar Substation" 
+              className="hero-centerpiece-img"
+              loading="eager"
             />
-            {/* Animated Energy Flow Particles through Cable */}
-            <path
-              d="M 514 288 C 490 340, 465 315, 430 285"
-              stroke="url(#cableFlowGrad)"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-              strokeDasharray="6 8"
-              className="cable-animated-flow"
-            />
-          </svg>
+            {/* Cinematic Gradient Overlays to Blend Seamlessly */}
+            <div className="hero-img-overlay-bottom" />
+            <div className="hero-img-overlay-side" />
+            
+            {/* Pulsing Energy Cable Glow Accent */}
+            <div className="hero-cable-beacon-glow" title="Active Dynamic Power Line" />
+          </div>
 
           {/* FLOATING CARD 1 (Top Left): Live Active Charging Status */}
           <div className="hero-floating-card card-charge-status">
@@ -276,10 +126,10 @@ export function HeroSection({ vehicles, gridMetrics, onExploreClick }) {
 
             <div className="floating-card-body">
               <div className="floating-card-title">
-                {anyCharging ? `${activeChargingEV.model}` : 'No Active Session'}
+                {anyCharging ? `${activeChargingEV.model}` : 'Grid Fleet Standby'}
               </div>
               <div className="floating-card-sub">
-                {anyCharging ? `Bay 0${activeChargingEV.bay} • Priority ${activeChargingEV.priorityMode}` : 'Awaiting EV connection'}
+                {anyCharging ? `Bay 0${activeChargingEV.bay} • ${activeChargingEV.priorityMode} Priority` : 'Awaiting EV connection'}
               </div>
 
               {anyCharging ? (
@@ -298,8 +148,8 @@ export function HeroSection({ vehicles, gridMetrics, onExploreClick }) {
               {anyCharging && (
                 <div className="floating-soc-progress">
                   <div className="soc-label-row">
-                    <span>SoC: {activeChargingEV.currentSoC}%</span>
-                    <span>Target: {activeChargingEV.targetSoC}%</span>
+                    <span>Battery {activeChargingEV.currentSoC}%</span>
+                    <span>Target {activeChargingEV.targetSoC}%</span>
                   </div>
                   <div className="soc-track-mini">
                     <div 
@@ -337,7 +187,7 @@ export function HeroSection({ vehicles, gridMetrics, onExploreClick }) {
             <div className="floating-card-footer">
               <div className="pill-protected">
                 <ShieldCheck size={13} />
-                <span>Zero Overload Risk</span>
+                <span>Zero Overload Safe</span>
               </div>
             </div>
           </div>

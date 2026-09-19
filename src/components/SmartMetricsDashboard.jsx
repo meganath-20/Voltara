@@ -28,75 +28,121 @@ export function SmartMetricsDashboard({ gridMetrics, vehicles }) {
         </p>
       </div>
 
-      <div className="metrics-dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '32px' }}>
+      <div className="metrics-dashboard-grid">
         
         {/* WATTWISE PANEL */}
-        <div className="dashboard-panel" style={{ background: 'var(--surface)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <Zap color="var(--electric)" />
-            <h3 style={{ margin: 0, color: 'var(--text)' }}>WattWise Efficiency</h3>
+        <div className="dashboard-panel wattwise-panel-card">
+          <div className="panel-header-row">
+            <div className="panel-title-group">
+              <div className="panel-icon-wrap zap-icon">
+                <Zap size={18} color="var(--electric)" />
+              </div>
+              <div>
+                <h3 className="panel-main-title">WattWise Dynamic Efficiency</h3>
+                <p className="panel-sub-title">Real-time inverter modulation & thermal loss minimization</p>
+              </div>
+            </div>
+            <span className="panel-badge-pill font-mono">Dynamic Curve</span>
           </div>
           
-          <div className="wattwise-flow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Grid Energy</div>
-              <div style={{ fontSize: '1.2rem', color: 'var(--text)', fontWeight: 'bold' }}>{totalEVChargingKW.toFixed(2)} kW</div>
+          {/* Energy Distribution Tree Flow */}
+          <div className="wattwise-tree-container">
+            {/* Top Node: Grid Energy */}
+            <div className="tree-node node-grid-source">
+              <div className="node-label">1. GRID INPUT LOAD</div>
+              <div className="node-value font-mono">{totalEVChargingKW.toFixed(2)} <span className="node-unit">kW</span></div>
             </div>
-            <div style={{ color: 'var(--text-muted)' }}>→</div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Useful Energy</div>
-              <div style={{ fontSize: '1.2rem', color: 'var(--primary)', fontWeight: 'bold' }}>{totalUsefulEnergyKW.toFixed(2)} kW</div>
+
+            {/* Tree Branch Connectors */}
+            <div className="tree-branch-lines">
+              <div className="branch-line branch-left" />
+              <div className="branch-line branch-right" />
             </div>
-            <div style={{ color: 'var(--text-muted)' }}>+</div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Losses</div>
-              <div style={{ fontSize: '1.2rem', color: 'var(--warning)', fontWeight: 'bold' }}>{totalWastedEnergyKW.toFixed(2)} kW</div>
+
+            {/* Bottom Split Nodes: Useful vs Loss */}
+            <div className="tree-split-row">
+              <div className="tree-node node-useful">
+                <div className="node-badge positive">USEFUL BATTERY ENERGY</div>
+                <div className="node-value font-mono" style={{ color: 'var(--primary)' }}>
+                  {totalUsefulEnergyKW.toFixed(2)} <span className="node-unit">kW</span>
+                </div>
+                <div className="node-hint">Directly stored into vehicle packs</div>
+              </div>
+
+              <div className="tree-node node-losses">
+                <div className="node-badge warning">DISSIPATED LOSSES</div>
+                <div className="node-value font-mono" style={{ color: 'var(--warning)' }}>
+                  {totalWastedEnergyKW.toFixed(2)} <span className="node-unit">kW</span>
+                </div>
+                <div className="node-hint">Minimised across modulated curve</div>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-            <div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Baseline Loss (Est)</div>
-              <div style={{ fontWeight: '500' }}>{baselineWasted.toFixed(2)} kW</div>
+          {/* Savings Comparison Footer */}
+          <div className="wattwise-comparison-footer">
+            <div className="comparison-metric">
+              <span className="comp-label">Estimated Baseline Fixed Loss</span>
+              <span className="comp-value font-mono">{baselineWasted.toFixed(2)} kW (6.0%)</span>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>WattWise Savings</div>
-              <div style={{ fontWeight: '500', color: 'var(--primary)' }}>{wattWiseSaved} kW avoided</div>
+            <div className="comparison-metric right">
+              <span className="comp-label">WattWise Active Savings</span>
+              <span className="comp-value-highlight font-mono">
+                {wattWiseSaved > 0 ? `+${wattWiseSaved} kW Saved` : 'Peak Efficiency'}
+              </span>
             </div>
           </div>
         </div>
 
         {/* FAIRNESS MEMORY PANEL */}
-        <div className="dashboard-panel" style={{ background: 'var(--surface)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ShieldCheck color="var(--primary)" />
-              <h3 style={{ margin: 0, color: 'var(--text)' }}>Fairness Memory</h3>
+        <div className="dashboard-panel fairness-panel-card">
+          <div className="panel-header-row">
+            <div className="panel-title-group">
+              <div className="panel-icon-wrap shield-icon">
+                <ShieldCheck size={18} color="var(--primary)" />
+              </div>
+              <div>
+                <h3 className="panel-main-title">Fairness Memory</h3>
+                <p className="panel-sub-title">Historical compromise tracking preventing driver fatigue</p>
+              </div>
             </div>
+            <span className="panel-badge-pill green font-mono">Equitable</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {drivers.map((driver, idx) => (
-              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontWeight: '500' }}>{driver.name}</div>
-                <div style={{ display: 'flex', gap: '24px', textAlign: 'right' }}>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Compromises</div>
-                    <div style={{ fontWeight: 'bold' }}>{driver.history.compromiseCount}</div>
+          <div className="fairness-drivers-list">
+            {drivers.map((driver, idx) => {
+              const burden = driver.history.totalSeverity || 'Low';
+              return (
+                <div key={idx} className="fairness-driver-row">
+                  <div className="driver-info-col">
+                    <div className="driver-avatar-mini">
+                      {driver.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="driver-full-name">{driver.name}</div>
+                      <div className="driver-fairness-status">
+                        {driver.history.compromiseCount > 0 
+                          ? `${driver.history.compromiseCount} Charge Pact(s) accepted` 
+                          : 'No compromises needed'}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Wait Time</div>
-                    <div style={{ fontWeight: 'bold' }}>{driver.history.totalWaitingMinutes}m</div>
-                  </div>
-                  <div style={{ minWidth: '60px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Burden</div>
-                    <div style={{ fontWeight: 'bold', color: driver.history.totalSeverity === 'High' ? 'var(--danger)' : driver.history.totalSeverity === 'Medium' ? 'var(--warning)' : 'var(--primary)' }}>
-                      {driver.history.totalSeverity}
+
+                  <div className="driver-metrics-col">
+                    <div className="driver-stat-box">
+                      <span className="dstat-label">Wait Added</span>
+                      <span className="dstat-val font-mono">{driver.history.totalWaitingMinutes}m</span>
+                    </div>
+
+                    <div className="driver-burden-pill-wrap">
+                      <span className={`burden-badge ${burden.toLowerCase()}`}>
+                        {burden} Burden
+                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
