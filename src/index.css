@@ -1541,17 +1541,26 @@ main.continuous-main {
 .timeline-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .timeline-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
   font-size: 0.84rem;
   font-weight: 700;
   color: var(--dark);
+}
+
+.timeline-heading > span:first-child {
+  min-width: 0;
+  flex: 1;
 }
 
 .timeline-kw {
@@ -1559,6 +1568,9 @@ main.continuous-main {
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--primary);
+  flex-shrink: 0;
+  white-space: nowrap;
+  text-align: right;
 }
 
 .timeline-desc {

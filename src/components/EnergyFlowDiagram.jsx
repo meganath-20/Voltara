@@ -191,7 +191,7 @@ export function EnergyFlowDiagram({ gridMetrics }) {
 
           {/* STAGE 1: SOLAR (Top Left) */}
           <g transform="translate(180, 90)" className="diagram-node">
-            <rect x="-85" y="-45" width="170" height="90" rx="16" fill="#FFFFFF" stroke="#087F5B" strokeWidth="2" filter="url(#nodeCardShadow)" />
+          <rect x="-105" y="-50" width="210" height="100" rx="16" fill="#FFFFFF" stroke="#087F5B" strokeWidth="2" filter="url(#nodeCardShadow)" />
             <circle cx="-50" cy="0" r="22" fill="rgba(8, 127, 91, 0.1)" />
             <foreignObject x="-62" y="-12" width="24" height="24">
               <Sun size={24} color="#087F5B" />
@@ -209,17 +209,17 @@ export function EnergyFlowDiagram({ gridMetrics }) {
 
           {/* STAGE 2: GRID & SUBSTATION (Top Right) */}
           <g transform="translate(660, 90)" className="diagram-node">
-            <rect 
-              x="-85" 
-              y="-45" 
-              width="170" 
-              height="90" 
-              rx="16" 
-              fill="#FFFFFF" 
-              stroke={isImporting ? '#1597E5' : '#087F5B'} 
-              strokeWidth="2" 
-              filter="url(#nodeCardShadow)" 
-            />
+          <rect
+  x="-105"
+  y="-50"
+  width="210"
+  height="100"
+  rx="16"
+  fill="#FFFFFF"
+  stroke={isImporting ? '#1597E5' : '#087F5B'}
+  strokeWidth="2"
+  filter="url(#nodeCardShadow)"
+/>
             <circle cx="-50" cy="0" r="22" fill={isImporting ? 'rgba(21, 151, 229, 0.1)' : 'rgba(8, 127, 91, 0.1)'} />
             <foreignObject x="-62" y="-12" width="24" height="24">
               <Zap size={24} color={isImporting ? '#1597E5' : '#087F5B'} />
@@ -237,7 +237,7 @@ export function EnergyFlowDiagram({ gridMetrics }) {
 
           {/* STAGE 3: BUILDING INFRASTRUCTURE (Bottom Left) */}
           <g transform="translate(180, 350)" className="diagram-node">
-            <rect x="-85" y="-45" width="170" height="90" rx="16" fill="#FFFFFF" stroke="#7950F2" strokeWidth="2" filter="url(#nodeCardShadow)" />
+          <rect x="-105" y="-50" width="210" height="100" rx="16" fill="#FFFFFF" stroke="#7950F2" strokeWidth="2" filter="url(#nodeCardShadow)" />
             <circle cx="-50" cy="0" r="22" fill="rgba(121, 80, 242, 0.1)" />
             <foreignObject x="-62" y="-12" width="24" height="24">
               <Building2 size={24} color="#7950F2" />
@@ -246,7 +246,7 @@ export function EnergyFlowDiagram({ gridMetrics }) {
               3. BUILDING DEMAND
             </text>
             <text x="-15" y="10" fill="#102A2A" fontSize="20" fontWeight="800" fontFamily="var(--font-heading)">
-              {baseBuildingLoadKW} <tspan fontSize="12" fill="#536B69">kW</tspan>
+            {baseBuildingLoadKW.toFixed(1)} <tspan fontSize="12" fill="#536B69">kW</tspan>
             </text>
             <text x="-15" y="28" fill="#7950F2" fontSize="10" fontWeight="600" fontFamily="var(--font-mono)">
               HVAC, IT & Lighting
@@ -255,7 +255,7 @@ export function EnergyFlowDiagram({ gridMetrics }) {
 
           {/* STAGE 4: SMART EV CLUSTER (Bottom Right) */}
           <g transform="translate(660, 350)" className="diagram-node">
-            <rect x="-85" y="-45" width="170" height="90" rx="16" fill="#FFFFFF" stroke="#12B886" strokeWidth="2" filter="url(#nodeCardShadow)" />
+          <rect x="-105" y="-50" width="210" height="100" rx="16" fill="#FFFFFF" stroke="#12B886" strokeWidth="2" filter="url(#nodeCardShadow)" />
             <circle cx="-50" cy="0" r="22" fill="rgba(18, 184, 134, 0.1)" />
             <foreignObject x="-62" y="-12" width="24" height="24">
               <BatteryCharging size={24} color="#087F5B" />
@@ -321,7 +321,7 @@ export function EnergyFlowDiagram({ gridMetrics }) {
           <div className="step-num">03</div>
           <div className="step-info">
             <span className="step-name">Support Building</span>
-            <span className="step-detail">{baseBuildingLoadKW} kW baseline load guaranteed</span>
+            <span className="step-detail">{baseBuildingLoadKW.toFixed(1)} kW baseline load guaranteed</span>
           </div>
         </div>
         <div className="story-arrow">→</div>

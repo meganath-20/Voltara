@@ -65,20 +65,20 @@ export function GridFlowStory({ gridMetrics }) {
         <div className="headroom-equation-box">
           <div className="equation-part">
             <span className="part-label">Grid Rating</span>
-            <span className="part-val">{transformerCapacityKW} <span className="part-unit">kW</span></span>
+            <span className="part-val">{transformerCapacityKW.toFixed(1)}<span className="part-unit">kW</span></span>
           </div>
           <div className="equation-symbol">−</div>
           <div className="equation-part">
             <span className="part-label">{isExporting ? 'Grid Export' : 'Grid Draw'}</span>
             <span className="part-val" style={{ color: isImporting ? 'var(--electric)' : 'var(--primary)' }}>
-              {isExporting ? netGridExportKW : netUtilityGridImportKW} <span className="part-unit">kW</span>
+            {(isExporting ? netGridExportKW : netUtilityGridImportKW).toFixed(1)} <span className="part-unit">kW</span>
             </span>
           </div>
           <div className="equation-symbol">=</div>
           <div className="equation-part headroom-result">
             <span className="part-label">Headroom Left</span>
             <span className="part-val" style={{ color: transformerLoadPercent >= 85 ? 'var(--warning)' : 'var(--primary)' }}>
-              {transformerHeadroomKW} <span className="part-unit">kW</span>
+            {transformerHeadroomKW.toFixed(1)}<span className="part-unit">kW</span>
             </span>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function GridFlowStory({ gridMetrics }) {
         <div className="headroom-bar-container">
           <div className="headroom-bar-header">
             <span>Transformer Load: <strong>{transformerLoadPercent}%</strong></span>
-            <span>Safety Margin: <strong>{transformerHeadroomKW} kW</strong></span>
+            <span>Safety Margin: <strong>{transformerHeadroomKW.toFixed(1)} kW</strong></span>
           </div>
           <div className="headroom-track">
             <div 
@@ -128,7 +128,7 @@ export function GridFlowStory({ gridMetrics }) {
             <div className="timeline-content">
               <div className="timeline-heading">
                 <span>1. Solar Generation</span>
-                <span className="timeline-kw">{solarGenerationKW} kW</span>
+                <span className="timeline-kw">{solarGenerationKW.toFixed(1)} kW</span>
               </div>
               <p className="timeline-desc">Zero-carbon generation harvested from rooftop PV is given first-priority dispatch.</p>
             </div>
@@ -142,7 +142,11 @@ export function GridFlowStory({ gridMetrics }) {
             <div className="timeline-content">
               <div className="timeline-heading">
                 <span>2. Grid & Substation</span>
-                <span className="timeline-kw">{isExporting ? `+${netGridExportKW} kW Export` : `${netUtilityGridImportKW} kW Import`}</span>
+                <span className="timeline-kw">
+  {isExporting
+    ? `+${netGridExportKW.toFixed(1)} kW Export`
+    : `${netUtilityGridImportKW.toFixed(1)} kW Import`}
+</span>
               </div>
               <p className="timeline-desc">Monitors substation transformer thermal limits to prevent utility peak demand penalties.</p>
             </div>
@@ -156,7 +160,7 @@ export function GridFlowStory({ gridMetrics }) {
             <div className="timeline-content">
               <div className="timeline-heading">
                 <span>3. Facility Infrastructure</span>
-                <span className="timeline-kw">{baseBuildingLoadKW} kW</span>
+                <span className="timeline-kw">{baseBuildingLoadKW.toFixed(1)} kW</span>
               </div>
               <p className="timeline-desc">Baseline facility operations (HVAC, IT, lighting) are guaranteed uninterrupted power.</p>
             </div>
@@ -170,7 +174,7 @@ export function GridFlowStory({ gridMetrics }) {
             <div className="timeline-content">
               <div className="timeline-heading">
                 <span>4. Smart EV Cluster</span>
-                <span className="timeline-kw">{totalEVChargingKW} kW</span>
+                <span className="timeline-kw">{totalEVChargingKW.toFixed(1)} kW</span>
               </div>
               <p className="timeline-desc">Fair-share water-filling algorithm dynamically scales charging currents to fit available headroom.</p>
             </div>
