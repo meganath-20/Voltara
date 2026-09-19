@@ -75,14 +75,14 @@ function getSmartChargingStatus(vehicle, gridMetrics) {
     };
   }
 
-  if (priorityMode === 'EXPRESS' || urgencyLevel === 'CRITICAL') {
+  if (priorityMode === 'FAST' || priorityMode === 'EXPRESS' || urgencyLevel === 'CRITICAL') {
     return {
       type: 'priority',
-      label: 'Priority Charging',
-      shortBadge: urgencyLevel === 'CRITICAL' ? 'Urgent' : 'Express',
+      label: 'Express Charging (FAST)',
+      shortBadge: urgencyLevel === 'CRITICAL' ? 'Urgent' : 'FAST',
       reason: urgencyLevel === 'CRITICAL'
         ? 'Imminent departure deadline. Top priority power allocation.'
-        : 'Express priority scheduling active. Allocated maximum available current.',
+        : 'Express priority mode active. Allocated maximum available power capacity.',
       themeColor: '#D9480F',
       badgeBg: 'rgba(217, 72, 15, 0.12)',
       borderColor: 'rgba(217, 72, 15, 0.28)',
@@ -90,12 +90,12 @@ function getSmartChargingStatus(vehicle, gridMetrics) {
     };
   }
 
-  if (priorityMode === 'ECO_SOLAR') {
+  if (priorityMode === 'ECO' || priorityMode === 'ECO_SOLAR') {
     return {
       type: 'solar',
-      label: 'Solar-Assisted',
-      shortBadge: 'Eco Solar',
-      reason: 'Modulating rate to match real-time rooftop solar generation surplus.',
+      label: 'Eco Efficiency Profile',
+      shortBadge: 'ECO Profile',
+      reason: 'Targeting low-loss, high-efficiency operating point (3-5 kW).',
       themeColor: 'var(--primary)',
       badgeBg: 'rgba(8, 127, 91, 0.12)',
       borderColor: 'rgba(8, 127, 91, 0.25)',
@@ -372,13 +372,14 @@ export function ChargingBayCard({
           <select
             id={`mode-select-${id}`}
             className="ev-mode-dropdown"
-            value={priorityMode}
+            value={priorityMode || 'NORMAL'}
             onChange={(e) => onUpdatePriority(id, e.target.value)}
             disabled={isCompleted}
           >
-            <option value="AUTO">Smart Balanced</option>
-            <option value="EXPRESS">Express Priority</option>
-            <option value="ECO_SOLAR">Eco Clean (Solar)</option>
+            <option value="NORMAL">NORMAL (Smart Balanced)</option>
+            <option value="FAST">FAST (Express Max)</option>
+            <option value="ECO">ECO (Low-Loss Clean)</option>
+            <option value="PAUSED">PAUSED (Standby)</option>
           </select>
         </div>
 
@@ -393,6 +394,7 @@ export function ChargingBayCard({
           <span>{isPaused ? 'Resume' : 'Pause'}</span>
         </button>
       </div>
+
     </div>
   );
 }

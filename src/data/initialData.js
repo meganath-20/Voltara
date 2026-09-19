@@ -77,12 +77,12 @@ export const INITIAL_VEHICLES = [
     currentSoC: 20,
     targetSoC: 85,
     arrivalMinutesAgo: 45,
-    departureMinutesLeft: 75, // 1h 15m - VERY URGENT
+    departureMinutesLeft: 75, // 1h 15m
     maxPower: 22,
     currentAllocatedPower: 18.5,
     allocatedAmps: 80,
-    priorityMode: 'EXPRESS', // AUTO, EXPRESS, ECO_SOLAR
-    status: 'CHARGING', // CHARGING, THROTTLED, QUEUED, COMPLETED, PAUSED
+    priorityMode: 'FAST', // NORMAL, FAST, ECO, PAUSED
+    status: 'CHARGING',
     energyDeliveredKWh: 11.2,
     color: '#38bdf8'
   },
@@ -100,7 +100,7 @@ export const INITIAL_VEHICLES = [
     maxPower: 11,
     currentAllocatedPower: 9.8,
     allocatedAmps: 42.6,
-    priorityMode: 'AUTO',
+    priorityMode: 'NORMAL',
     status: 'CHARGING',
     energyDeliveredKWh: 3.4,
     color: '#00f59b'
@@ -115,11 +115,11 @@ export const INITIAL_VEHICLES = [
     currentSoC: 30,
     targetSoC: 90,
     arrivalMinutesAgo: 60,
-    departureMinutesLeft: 360, // 6h - Lots of time
+    departureMinutesLeft: 360, // 6h
     maxPower: 11.5,
     currentAllocatedPower: 5.2,
     allocatedAmps: 22.6,
-    priorityMode: 'AUTO',
+    priorityMode: 'NORMAL',
     status: 'CHARGING',
     energyDeliveredKWh: 7.9,
     color: '#f59e0b'
@@ -134,11 +134,11 @@ export const INITIAL_VEHICLES = [
     currentSoC: 18,
     targetSoC: 85,
     arrivalMinutesAgo: 30,
-    departureMinutesLeft: 95, // 1h 35m - Urgent commercial vehicle
+    departureMinutesLeft: 95, // 1h 35m
     maxPower: 19.2,
     currentAllocatedPower: 16.2,
     allocatedAmps: 70.4,
-    priorityMode: 'EXPRESS',
+    priorityMode: 'FAST',
     status: 'CHARGING',
     energyDeliveredKWh: 8.6,
     color: '#f43f5e'

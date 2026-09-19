@@ -37,10 +37,10 @@ export function ScenarioControls({
   const currentBuildingKW = manualBuildingKW ?? Math.round(gridConfig.baseBuildingLoadKW);
   const currentSolarKW = manualSolarKW ?? (gridConfig.weather === 'OVERCAST' ? 6 : (gridConfig.weather === 'NIGHT' ? 0 : 38));
 
-  const isSurgeActive = gridConfig.buildingSurgeActive || manualBuildingKW >= 80;
-  const isSolarDropActive = gridConfig.solarDropActive || gridConfig.weather === 'OVERCAST' || (manualSolarKW !== null && manualSolarKW <= 10);
-  const isShortageActive = gridConfig.shortageDemoActive || (manualGridLimitKW === 72 && manualBuildingKW === 42);
-  const isCurtailmentActive = (gridConfig.curtailmentActive && !gridConfig.shortageDemoActive) || (manualGridLimitKW !== null && manualGridLimitKW < 90 && !isShortageActive);
+  const isSurgeActive = !!gridConfig.buildingSurgeActive;
+  const isSolarDropActive = gridConfig.solarDropActive || gridConfig.weather === 'OVERCAST';
+  const isShortageActive = !!gridConfig.shortageDemoActive;
+  const isCurtailmentActive = gridConfig.curtailmentActive && !gridConfig.shortageDemoActive;
 
   const scenarioCards = [
     {

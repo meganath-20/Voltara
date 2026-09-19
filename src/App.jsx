@@ -16,6 +16,7 @@ import { AiInsightsSection } from './components/AiInsightsSection';
 import { ImpactSection } from './components/ImpactSection';
 import { AddVehicleModal } from './components/AddVehicleModal';
 import { ChargePactModal } from './components/ChargePactModal';
+import { ChargePactDashboardCard } from './components/ChargePactDashboardCard';
 import { SmartMetricsDashboard } from './components/SmartMetricsDashboard';
 
 const SECTION_IDS = [
@@ -225,6 +226,17 @@ export function App() {
               />
             </ScrollReveal>
           </section>
+
+          {/* CHARGE PACT PROPOSAL DASHBOARD CARD */}
+          {activePactProposal && (
+            <ScrollReveal>
+              <ChargePactDashboardCard
+                activePactProposal={activePactProposal}
+                onAccept={acceptChargePact}
+                onDecline={declineChargePact}
+              />
+            </ScrollReveal>
+          )}
 
           {/* SECTION 03.5 — SMART METRICS & FAIRNESS */}
           <ScrollReveal>
