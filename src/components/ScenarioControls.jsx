@@ -39,7 +39,8 @@ export function ScenarioControls({
 
   const isSurgeActive = gridConfig.buildingSurgeActive || manualBuildingKW >= 80;
   const isSolarDropActive = gridConfig.solarDropActive || gridConfig.weather === 'OVERCAST' || (manualSolarKW !== null && manualSolarKW <= 10);
-  const isCurtailmentActive = gridConfig.curtailmentActive || (manualGridLimitKW !== null && manualGridLimitKW < 90);
+  const isShortageActive = gridConfig.shortageDemoActive || (manualGridLimitKW === 72 && manualBuildingKW === 42);
+  const isCurtailmentActive = (gridConfig.curtailmentActive && !gridConfig.shortageDemoActive) || (manualGridLimitKW !== null && manualGridLimitKW < 90 && !isShortageActive);
 
   const scenarioCards = [
     {
@@ -100,8 +101,8 @@ export function ScenarioControls({
       triggerTag: '6 kW SHORTAGE',
       icon: ShieldAlert,
       color: 'var(--warning)',
-      borderColor: isCurtailmentActive ? 'var(--warning)' : 'var(--border)',
-      isActive: isCurtailmentActive,
+      borderColor: isShortageActive ? 'var(--warning)' : 'var(--border)',
+      isActive: isShortageActive,
       description: 'Grid capacity abruptly capped to 30 kW while cluster demands ~36 kW.',
       effectText: 'Triggers the Charge Pact candidate selection to absorb the 6 kW deficit.',
       action: triggerGridShortageDemo,

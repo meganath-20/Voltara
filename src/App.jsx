@@ -52,6 +52,7 @@ export function App() {
     triggerSolarCloudDrop,
     triggerCurtailmentEvent,
     triggerFleetRush,
+    triggerGridShortageDemo,
     resetScenarios,
     // EV actions
     updateVehiclePriority,
@@ -291,6 +292,7 @@ export function App() {
                 triggerSolarCloudDrop={triggerSolarCloudDrop}
                 triggerCurtailmentEvent={triggerCurtailmentEvent}
                 triggerFleetRush={triggerFleetRush}
+                triggerGridShortageDemo={triggerGridShortageDemo}
                 resetScenarios={resetScenarios}
               />
             </ScrollReveal>
