@@ -2,7 +2,7 @@ import React from 'react';
 import { Activity, ShieldCheck, Clock, CheckCircle2, Zap } from 'lucide-react';
 import { getFairnessHistory } from '../hooks/useGridSimulation';
 
-export function SmartMetricsDashboard({ gridMetrics, vehicles }) {
+export function SmartMetricsDashboard({ gridMetrics, vehicles, backendData }) {
   const history = getFairnessHistory();
   const drivers = vehicles.map(v => ({
     name: v.owner,
@@ -145,6 +145,36 @@ export function SmartMetricsDashboard({ gridMetrics, vehicles }) {
             })}
           </div>
         </div>
+        {/* BACKEND DATA CONNECTION */}
+        {backendData && (
+          <div className="dashboard-panel">
+            <div className="panel-header-row">
+              <div>
+                <h3 className="panel-main-title">Python Backend Telemetry</h3>
+                <p className="panel-sub-title">
+                  Calibrated energy data from the Voltara backend
+                </p>
+              </div>
+              <span className="panel-badge-pill green font-mono">LIVE API</span>
+            </div>
+
+            <div className="wattwise-comparison-footer">
+              <div className="comparison-metric">
+                <span className="comp-label">Building Load</span>
+                <span className="comp-value font-mono">
+                  {backendData.building_load_kw.toFixed(2)} kW
+                </span>
+              </div>
+
+              <div className="comparison-metric right">
+                <span className="comp-label">Connected EVs</span>
+                <span className="comp-value-highlight font-mono">
+                  {backendData.connected_ev_count}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

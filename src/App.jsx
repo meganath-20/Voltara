@@ -30,7 +30,19 @@ const SECTION_IDS = [
 ];
 
 export function App() {
+  const [backendData, setBackendData] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/dashboard')
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Voltara backend connected:', data);
+        setBackendData(data);
+      })
+      .catch((error) => {
+        console.error('Backend connection failed:', error);
+      });
+  }, []);
   const [activeSection, setActiveSection] = useState('overview');
 
   const {
@@ -219,6 +231,7 @@ export function App() {
             <SmartMetricsDashboard
               gridMetrics={gridMetrics}
               vehicles={vehicles}
+              backendData={backendData}
             />
           </ScrollReveal>
 

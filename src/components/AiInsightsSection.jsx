@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DemandForecast } from './DemandForecast';
 import { 
   Cpu, 
   Gauge, 
@@ -332,6 +333,7 @@ export function AiInsightsSection({
           </div>
         </div>
       </div>
+      <DemandForecast />
 
       {/* 2. Integrated Autonomous Decision Stream & Event Telemetry Feed */}
       <div className="ai-decision-feed-panel">
